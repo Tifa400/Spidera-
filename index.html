@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spidera</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Tahoma, sans-serif; background: #000000; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #363636;
+            box-shadow: 0 2px 4px rgba(240, 235, 235, 0.788);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .logo-container { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: bold; color: #111; text-decoration: none; }
+        .logo-container img { width: 28px; height: 28px; }
+        
+        .nav-links { display: flex; gap: 15px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: #4b5563; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #6366f1; }
+        
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .btn-signin { background: none; border: none; font-size: 13px; font-weight: 600; color: #111; cursor: pointer; }
+        .btn-signup { background: #ffffff; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(235, 6, 6, 0.3); transition: background 0.2s; display: flex; align-items: center; }
+        .btn-signup img { width: 16px; height: 16px; }
+
+    
+        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px; width: 100%; }
+        #chat-container { width: 100%; max-width: 650px; background: #2e2d2d; border-radius: 12px; box-shadow: 0 8px 24px rgba(221, 220, 220, 0.87); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #eaeaea; }
+        #chat-box { height: 65vh; max-height: 450px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid #eaeaea; }
+        
+        .message { padding: 12px 16px; border-radius: 8px; max-width: 90%; font-size: 14px; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; }
+        .user-message { background: #b9b9b9; color: #000000; align-self: flex-end; text-align: right; }
+        .bot-message { background: #941b0c; color: #fff; align-self: flex-start; text-align: right; width: 100%; }
+        .bot-message pre { background: #1e1e1e; color: #dcdcdc; padding: 10px; border-radius: 6px; overflow-x: auto; direction: ltr; text-align: left; font-family: Consolas, monospace; margin: 8px 0; }
+        
+        .thinking-message { background: #f3f4f6; color: #6b7280; align-self: flex-start; font-style: italic; display: flex; align-items: center; gap: 8px; }
+        .dots span { animation: blink 1.4s infinite both; font-weight: bold; font-size: 18px; }
+        .dots span:nth-child(2) { animation-delay: .2s; }
+        .dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+
+   
+        .action-buttons { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+
+        .button {
+            display: inline-block;
+            border-radius: 7px;
+            border: none;
+            background: #1875FF;
+            color: white;
+            font-family: inherit;
+            text-align: center;
+            font-size: 13px;
+            box-shadow: 0px 14px 56px -11px #1875FF;
+            width: 9em;
+            padding: 0.8em;
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+        .button span { cursor: pointer; display: inline-block; position: relative; transition: 0.4s; }
+        .button span:after { content: 'for free'; position: absolute; opacity: 0; top: 0; right: -20px; transition: 0.7s; }
+        .button:hover span { padding-right: 3.55em; }
+        .button:hover span:after { opacity: 4; right: 0; }
+        .copy-custom { background: #2b3440; box-shadow: 0px 14px 56px -11px #2b3440; }
+
+        #input-container { display: flex; padding: 10px; background: #fff; gap: 8px; align-items: center; }
+        #user-input { flex: 1; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; width: 100%; }
+        #user-input:focus { border-color: #6366f1; }
+
+        
+        .animated-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 18px;
+            border: 3px solid transparent;
+            font-size: 13px;
+            background-color: #111;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #c90505;
+            box-shadow: 0 0 0 2px #e20505;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            outline: none;
+            white-space: nowrap;
+        }
+
+        .animated-button svg {
+            position: absolute;
+            width: 18px;
+            fill: #ec0808;
+            z-index: 9;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .animated-button .arr-1 { right: 10px; }
+        .animated-button .arr-2 { left: -25%; }
+
+        .animated-button .circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background-color: #f30a0a;
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .animated-button .text {
+            position: relative;
+            z-index: 1;
+            transform: translateX(-6px);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .animated-button:hover {
+            box-shadow: 0 0 0 6px transparent;
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        .animated-button:hover .arr-1 { right: -25%; }
+        .animated-button:hover .arr-2 { left: 10px; }
+        .animated-button:hover .text { transform: translateX(6px); }
+        .animated-button:hover svg { fill: #fff; }
+        .animated-button:active { scale: 0.95; }
+        .animated-button:hover .circle { width: 150px; height: 150px; opacity: 1; }
+        .animated-button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+      
+        @media (max-width: 768px) {
+            header { padding: 10px; justify-content: center; }
+            .nav-left { justify-content: center; gap: 10px; }
+            .nav-links { justify-content: center; gap: 10px; }
+            .nav-links a { font-size: 11px; }
+            .nav-right { display: none; } 
+            #chat-container { height: 85vh; }
+        }
+    </style>
+</head>
+<body>
+
+
+<header>
+    <div class="nav-left">
+        <a href="#" class="logo-container">
+            <img src="icons/icons8-spider-50.png" alt="logo">
+            Spidera
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://github.com/Tifa400">github</a></li>
+            <li><a href="https://tryhackme.com/p/tifa400">tryhackme</a></li>
+            <li><a href="https://t.me/scattred_spider">Telegram channel</a></li>
+            <li><a href="https://t.me/TIFA400">Contact me</a></li>
+        </ul>
+    </div>
+    
+</header>
+
+
+<div class="main-content">
+    <div id="chat-container">
+        <div id="chat-box">
+            <div class="message bot-message">Hi I'm Spidera, your smart platform for programming and answering questions without limitations. I'll program what you can't, and answer all your questions, free for everyone and without the need to register or save any data. Start your chat now</div>
+        </div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Ask Spidera..." onkeypress="if(event.key==='Enter') sendMessage()" />
+            
+          
+            <button class="animated-button" id="send-btn" onclick="sendMessage()">
+                <svg viewBox="0 0 24 24" class="arr-2" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                </svg>
+                <span class="text">send</span>
+                <span class="circle"></span>
+                <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const inputField = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-box');
+        const userText = inputField.value.trim();
+        if (!userText) return;
+
+        chatBox.innerHTML += `<div class="message user-message">${escapeHtml(userText)}</div>`;
+        inputField.value = '';
+        inputField.disabled = true;
+        sendBtn.disabled = true;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        const thinkingId = 'thinking-' + Date.now();
+        chatBox.innerHTML += `
+            <div id="${thinkingId}" class="message thinking-message">
+                <span>Spydra is thinking 🕷</span>
+                <div class="dots"><span>.</span><span>.</span><span>.</span></div>
+            </div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const response = await fetch('http://localhost:3000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userText })
+            });
+
+            const data = await response.json();
+            
+            const thinkingElement = document.getElementById(thinkingId);
+            if (thinkingElement) thinkingElement.remove();
+
+            let replyText = "";
+            if (data.reply) {
+                replyText = data.reply;
+            } else if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                replyText = data.candidates[0].content.parts[0].text;
+            } else {
+                replyText = "Sorry, an empty response was received from the server or the form.";
+            }
+
+            let formattedReply = formatMarkdownCode(replyText);
+            let botHTML = `<div class="message bot-message">${formattedReply}`;
+            
+            if (data.fileUrl) {
+                const fileName = data.fileUrl.split('/').pop();
+                botHTML += `
+                    <div class="action-buttons">
+                        <button class="button" onclick="downloadFile('${data.fileUrl}', '${fileName}')" style="vertical-align:middle"><span>Download</span></button>
+                        <button class="button copy-custom" onclick="copyCode(this)" style="vertical-align:middle"><span class="copy-text">Copy Code</span></button>
+                    </div>`;
+            }
+            botHTML += `</div>`;
+
+            chatBox.innerHTML += botHTML;
+        } catch (err) {
+            const thinkingElement = document.getElementById(thinkingId);
+            if (thinkingElement) thinkingElement.remove();
+            
+            chatBox.innerHTML += `<div class="message bot-message" style="color:red;">Error connecting to the local server or failure to respond..</div>`;
+        } finally {
+            inputField.disabled = false;
+            sendBtn.disabled = false;
+            inputField.focus();
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    async function downloadFile(url, filename) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (e) {
+            window.open(url, '_blank');
+        }
+    }
+
+    function copyCode(button) {
+        const messageBox = button.closest('.bot-message');
+        const preTag = messageBox.querySelector('pre');
+        const spanText = button.querySelector('.copy-text');
+        
+        if (preTag) {
+            const codeText = preTag.innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = spanText.innerText;
+                spanText.innerText = 'Copied!';
+                button.style.background = '#10b981';
+                setTimeout(() => {
+                    spanText.innerText = originalText;
+                    button.style.background = '#2b3440';
+                }, 2000);
+            });
+        }
+    }
+
+    function formatMarkdownCode(text) {
+        return text.replace(/```([a-zA-Z]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+            return `<pre><code>${escapeHtml(code.trim())}</code></pre>`;
+        });
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#039;");
+    }
+</script>
+</body>
+</html>
